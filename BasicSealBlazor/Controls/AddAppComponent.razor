@@ -1,0 +1,92 @@
+﻿@if (display)
+{
+    <div class="modal is-active">
+        <div class="modal-background"></div>
+        <div class="modal-card" id="modcard">
+
+            <header class="modal-card-head" id="modcardhead">
+                <p class="modal-card-title" id="modcardtitle">Add New Application</p>
+                <button class="delete" aria-label="close" @onclick="(() =>
+                                                                    {
+                                                                        HideDialog();
+                                                                    })"></button>
+            </header>
+            <section class="modal-card-body" id="modcardbody">
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-info" type="text" placeholder="Application Name" @bind-value="appName" @bind-value:event="oninput"
+                               @onkeyup="@ToggleSave">
+                    </div>
+                </div>
+                <div class="inputError">
+                    <p hidden="@(!displayError)">
+                        Application already exists!
+                    </p>
+                </div>
+                <div class="buttons is-justify-content-center" id="modcardbtngrp">
+                    <button class="button is-info @isLoading" disabled="@isDisabled" @onclick="SaveApp">Save</button>
+                    <button class="button is-light" @onclick="(() =>
+                                                                    {
+                                                                        HideDialog();
+                                                                    })">
+                        Cancel
+                    </button>
+                </div>
+            </section>
+            <footer class="modal-card-foot" id="modcardfoot"></footer>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public Action AppsChanged { get; set; }
+
+    private bool display = false;
+    private string appName { get; set; }
+    private bool isDisabled { get; set; } = true;
+    private bool displayError = false;
+    private string isLoading = null;
+
+    public void DisplayDialog() { display = true; StateHasChanged(); }
+    public void HideDialog()
+    {
+        display = false;
+        appName = string.Empty;
+        displayError = false;
+        StateHasChanged();
+    }
+
+    private void ToggleSave()
+    {
+        if (string.IsNullOrEmpty(appName))
+        {
+            isDisabled = true;
+        }
+        else { isDisabled = false; }
+        StateHasChanged();
+    }
+
+    private async Task SaveApp()
+    {
+        isLoading = "is-loading";
+        displayError = false;
+
+        bool addApp =  await apiService.AddApplication(UserAuthState.token, appName);
+
+        if (addApp)
+        {
+            AppsChanged();
+
+            isLoading = null;
+            HideDialog();
+            appName = string.Empty;
+
+            return;
+        }
+
+        isLoading = null;
+        displayError = true;
+    }
+}

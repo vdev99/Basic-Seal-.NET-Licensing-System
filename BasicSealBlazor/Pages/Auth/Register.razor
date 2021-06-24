@@ -1,0 +1,125 @@
+﻿@page "/register"
+@using BasicSealBlazor.Dtos
+
+<AuthorizeView>
+    <Authorized> @if (true) { NavigationManager.NavigateTo("/"); }</Authorized>
+    <NotAuthorized>
+        <section class="hero">
+            <div class="hero-body has-text-centered">
+
+                <div class="column column is-4 is-offset-4">
+
+                    <h3 class="title">Registration</h3>
+                    <hr class="login-hr">
+
+                    <div class="container">
+                        <div class="box has-text-left">
+                            <form>
+                                <div class="notification is-success has-text-centered" hidden="@(!isRegisterSuccess)">
+                                    Registered successfully!
+                                    &nbsp;
+                                    redirecting...
+                                </div>
+                                <div class="field">
+                                    <label class="label">Email:</label>
+                                    <p class="control has-icons-left has-icons-right">
+                                        <input class="input @(displayRegisterError ? "is-danger" : "")" type="email"
+                                               @bind="userAuthDto.Email" @onkeyup="@Enter">
+                                        <span class="icon is-medium is-left">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+
+                                    </p>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Password:</label>
+                                    <p class="control has-icons-left">
+                                        <input class="input @(passwordNotMatch ? "is-danger" : "")"
+                                               type="password" @bind="repeatPassword" @onkeyup="@Enter">
+                                        <span class="icon is-medium is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Confirm Password:</label>
+                                    <p class="control has-icons-left">
+                                        <input class="input @(passwordNotMatch ? "is-danger" : "")"
+                                               type="password" @bind="userAuthDto.Password" @onkeyup="@Enter">
+                                        <span class="icon is-medium is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="inputError">
+                                    <p hidden="@(!displayRegisterError)">
+                                        The email is already registered
+                                    </p>
+                                    <p hidden="@(!passwordNotMatch)">
+                                        Please make sure your password match
+                                    </p>
+                                </div>
+                                <div class="field">
+                                    <p class="control">
+                                        <a type="button" class="button is-link is-medium is-fullwidth @isLoading" @onclick="RegisterUser">
+                                            Register
+                                        </a>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    private bool displayRegisterError = false;
+    private bool passwordNotMatch = false;
+    private bool isRegisterSuccess = false;
+    private string isLoading = null;
+    string repeatPassword = "";
+    private UserAuthDto userAuthDto = new UserAuthDto();
+
+    private async Task RegisterUser()
+    {
+        isLoading = "is-loading";
+        displayRegisterError = false;
+        passwordNotMatch = false;
+
+        if (userAuthDto.Password != repeatPassword)
+        {
+            passwordNotMatch = true;
+            return;
+        }
+
+        if (!(string.IsNullOrEmpty(userAuthDto.Email) || string.IsNullOrEmpty(userAuthDto.Password)))
+        {
+            bool registerSuccess = await apiService.RegisterUser(userAuthDto);
+
+            if (registerSuccess)
+            {
+                isRegisterSuccess = true;
+                StateHasChanged();
+
+                await Task.Delay(2000);
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+        }
+
+        isLoading = null;
+        displayRegisterError = true;
+    }
+
+    private async Task Enter(KeyboardEventArgs e)
+    {
+        if ((e.Code == "Enter" || e.Code == "NumpadEnter") && isLoading == null)
+        {
+            await RegisterUser();
+        }
+    }
+}

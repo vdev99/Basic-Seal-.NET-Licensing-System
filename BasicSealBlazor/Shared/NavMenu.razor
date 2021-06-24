@@ -1,0 +1,99 @@
+﻿@using BasicSealBlazor.Dtos
+
+<div class="column is-2 is-sidebar-menu is-hidden-mobile">
+    <aside class="menu">
+        <ul class="menu-list">
+            <li>
+                <a id="addApp" @onclick="(() => {
+                                     addApp.DisplayDialog();
+                                 })">
+                    <span class="icon is-small">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                    </span>
+                    &nbsp Add New Application
+                </a>
+                <AddAppComponent @ref="addApp" AppsChanged="async () => await LoadApps()"></AddAppComponent>
+            </li>
+            <li>
+                <a id="deleteApp" @onclick="(() => {
+                                     deleteApp.DisplayDialog();
+                                 })">
+                    <span class="icon is-small">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </span>
+                    &nbsp Delete Application
+                </a>
+                <DeleteAppComponent @ref="deleteApp" apps="@userApps" AppsChanged="AppsDeleted"></DeleteAppComponent>
+            </li>
+        </ul>
+        <p class="menu-label" id="myApps">
+            My Apps
+        </p>
+        <ul class="menu-list">
+            @if (userApps != null)
+            {
+                @for (int i = 0; i < userApps.Count; i++)
+                {
+                    int locI = i;
+                    <li>
+                        <a @onclick="() => Toggle(locI)">
+                            @userApps[locI].SoftwareName
+                            <span class="icon is-medium">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                        @if (userApps[locI].display)
+                        {
+                    <ul>
+                        <li><a @onclick="@(() => { Redirect("manage/licenses/generate", @userApps[locI].Id); })">Generate Lic. Key</a></li>
+                        <li><a @onclick="@(() => { Redirect("manage/licenses", @userApps[locI].Id); })">Manage Licenses</a></li>
+                        <li><a @onclick="@(() => { Redirect("manage/versions", @userApps[locI].Id); })">Manage Versions</a></li>
+                    </ul>
+                        }
+                    </li>
+                }
+            }
+            else
+            {
+                <center><span class="fas fa-circle-notch fa-2x fa-spin" style="color:white; margin-top: 15%;"></span></center>
+            }
+        </ul>
+    </aside>
+</div>
+
+@code {
+    private AddAppComponent addApp { get; set; }
+    private DeleteAppComponent deleteApp { get; set; }
+    private List<ApplicationsNavDto> userApps = null;
+
+
+    private void Redirect(string page, long id)
+    {
+        NavigationManager.NavigateTo($"/{page}/{id}");
+    }
+
+    private void Toggle(int position)
+    {
+        userApps[position].display = !userApps[position].display;
+        StateHasChanged();
+    }
+
+    private async Task LoadApps()
+    {
+        userApps = await apiService.GetUserApps(UserAuthState.token);
+        StateHasChanged();
+    }
+
+    private void AppsDeleted(List<ApplicationsNavDto> apps)
+    {
+        userApps = apps;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApps();
+
+        await base.OnInitializedAsync();
+    }
+}

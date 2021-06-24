@@ -1,0 +1,187 @@
+﻿@using BasicSealBlazor.Dtos
+
+@if (display)
+{
+    <div class="modal is-active">
+        <div class="modal-background"></div>
+        <div class="modal-card" id="modcaredit">
+            <header class="modal-card-head" id="modcardhead">
+                <p class="modal-card-title">Edit License</p>
+                <button class="delete" aria-label="close" @onclick="(() =>
+                                                                    {
+                                                                        HideDialog();
+                                                                    })"></button>
+            </header>
+            <section class="modal-card-body">
+                <section>
+                    <table class="table is-fullwidth" id="licenseEditTable">
+                        <thead>
+                            <tr>
+                                <th>License Key</th>
+                                <th>Length</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Activated</th>
+                                <th>Banned</th>
+                                <th><abbr title="Offline Verification">Offl. Verif.</abbr></th>
+                                <th>CPU ID</th>
+                                <th>HDD ID</th>
+                                <th>System ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (softwareLicense != null)
+                            {
+                            <tr>
+                                <td><input class="input is-small" type="text" @bind-value="softwareLicense.LicenseKey"></td>
+                                <td>
+                                    <div class="select is-small">
+                                        <select @onchange="SetLicenseLength" value="@selectedLength">
+                                            <option value="30">30 Days</option>
+                                            <option value="60">60 Days</option>
+                                            <option value="90">90 Days</option>
+                                            <option value="180">6 Months</option>
+                                            <option value="360">1 Year</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td><input class="input is-small" type="text" @bind-value="softwareLicense.LicenseStartDate" @bind-value:format="dd/MM/yyyy"></td>
+                                <td><input class="input is-small" type="text" @bind-value="softwareLicense.LicenseEndDate" @bind-value:format="dd/MM/yyyy"></td>
+                                <td><input class="input is-small" type="text" @bind-value="isActive"></td>
+                                <td><input class="input is-small" type="text" @bind-value="isBanned"></td>
+                                <td><input class="input is-small" type="text" @bind-value="offlineVerification"></td>
+                                <td><input class="input is-small" type="text" @bind-value="softwareLicense.CpuIdentifier"></td>
+                                <td><input class="input is-small" type="text" @bind-value="softwareLicense.HddIdentifier"></td>
+                                <td><input class="input is-small" type="text" @bind-value="softwareLicense.SystemUUID"></td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </section>
+
+                <div class="inputError">
+                    <p hidden="@(!displayError)">
+                        @errorMessage
+                    </p>
+                </div>
+
+                <div class="buttons is-justify-content-center" id="modcardbtngrp">
+                    <button class="button is-info @isLoading" @onclick="UpdateLicense">Update License</button>
+                    <button class="button is-light" @onclick="(() =>
+                                                                    {
+                                                                        HideDialog();
+                                                                    })">
+                        Cancel
+                    </button>
+                </div>
+
+            </section>
+            <footer class="modal-card-foot" id="modcardfoot"></footer>
+        </div>
+    </div>
+}
+@code {
+
+    [Parameter]
+    public Action<SoftwareLicenseDto> LicenseChanged { get; set; }
+
+    private SoftwareLicenseDto softwareLicense { get; set; }
+
+    private string isActive { get; set; }
+    private string offlineVerification { get; set; }
+    private string isBanned { get; set; }
+    private string errorMessage;
+
+    private string selectedLength = "30";
+    private bool displayError = false;
+    private bool isLoading = false;
+    private bool display = false;
+    public void DisplayDialog(SoftwareLicenseDto license)
+    {
+        display = true;
+        displayError = false;
+
+        softwareLicense = new SoftwareLicenseDto(license);
+        selectedLength = license.LicenseLength.ToString();
+        isActive = license.IsActivated.ToString();
+        isBanned = license.IsBanned.ToString();
+        offlineVerification = license.enableOfflineVerification.ToString();
+
+        StateHasChanged();
+    }
+    public void HideDialog()
+    {
+        isLoading = true;
+        displayError = false;
+
+        display = false;
+        softwareLicense = null;
+        StateHasChanged();
+    }
+
+    private void DisplayError(string error)
+    {
+        errorMessage = error;
+        displayError = true;
+        StateHasChanged();
+    }
+
+    private void SetLicenseLength(ChangeEventArgs e)
+    {
+        softwareLicense.LicenseLength = int.Parse(e.Value.ToString());
+    }
+
+    private async Task UpdateLicense()
+    {
+        isLoading = true;
+        displayError = false;
+
+        StateHasChanged();
+
+        bool active;
+        bool offlineVer;
+        bool bann;
+
+        if(Boolean.TryParse(isActive, out active) && Boolean.TryParse(offlineVerification, out offlineVer) && Boolean.TryParse(isBanned, out bann))
+        {
+            softwareLicense.IsActivated = active;
+            softwareLicense.enableOfflineVerification = offlineVer;
+            softwareLicense.IsBanned = bann;
+
+            if (string.IsNullOrEmpty(softwareLicense.LicenseKey))
+            {
+                DisplayError("License Key field can not be empty");
+                isLoading = false;
+                return;
+            }
+
+            if (DateTime.Compare(softwareLicense.LicenseStartDate, softwareLicense.LicenseEndDate) > 0)
+            {
+                DisplayError("Start date must be earlier than end date");
+            }
+            else
+            {
+                bool isSuccess = await apiService.UpdateSoftwareLicense(UserAuthState.token, softwareLicense);
+
+                if (isSuccess)
+                {
+                    isLoading = false;
+                    LicenseChanged(softwareLicense);
+
+                    HideDialog();
+                }
+                else
+                {
+                    DisplayError("The same License key already exists for this software");
+                    isLoading = false;
+                    softwareLicense = null;
+                    StateHasChanged();
+                }
+            }
+        }
+        else
+        {
+            DisplayError("Activated, Banned and Offline Verification fields must be true or false");
+        }
+    }
+}

@@ -1,0 +1,159 @@
+﻿@attribute [Authorize]
+@page "/manage/licenses/generate/{Id:int}"
+@using BasicSealBlazor.Dtos
+
+<div id="licenseManagerDiv">
+    <div id="licenseKeyGen">
+        <h1>License Key Generator</h1>
+        <table class="table">
+            <tr>
+                <td class="cellTitle">
+                    License Length:
+                </td>
+                <td class="cellInput">
+                    <div class="select is-info">
+                        <select @onchange="SetLicenseLength" disabled="@(!licenseLengthDrpShow)">
+                            @foreach (var item in selectItems)
+                            {
+                                <option value=@item[1]>@item[0]</option>
+                            }
+                        </select>
+                    </div>
+                </td>
+                <td class="cellTitle">
+                    Enable Offline Verification:
+                </td>
+                <td class="cellInput">
+                    <div class="control">
+                        <label class="radio">
+                            <input type="radio" name="offlineverification" checked value="true" @onchange="SetOfflineVerification">
+                            True
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="offlineverification" value="false" @onchange="SetOfflineVerification">
+                            Flase
+                        </label>
+                    </div>
+                </td>
+
+            </tr>
+            <tr>
+                <td class="cellTitle">
+                    Lifetime:
+                </td>
+                <td class="cellInput">
+                    <div class="control">
+                        <label class="radio">
+                            <input type="radio" name="islifetime" value="true" @onchange="SetLifetime">
+                            True
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="islifetime" checked value="false" @onchange="SetLifetime">
+                            Flase
+                        </label>
+                    </div>
+                </td>
+                <td class="cellTitle">
+                    License Key Count:
+                </td>
+                <td class="cellInput">
+                    <input class="input is-small" type="text" id="countTextbox" @bind-value="@keyGenerationParameters.count">
+                </td>
+            </tr>
+        </table>
+
+        <div class="inputError">
+            <p hidden="@(!displayError)">
+                Something Went Wrong
+            </p>
+        </div>
+        <div class="inputSuccess">
+            <p hidden="@(!displaySuccess)">
+                License Key/s Successfully Generated
+            </p>
+        </div>
+
+        <div id="generateKeyHolder">
+            <button class="button is-link @isLoading" id="generateKeyBtn" @onclick="GenerateLicenseKeys">Generate Key</button>
+        </div>
+    </div>
+</div>
+
+    @code {
+        [Parameter]
+        public int Id { get; set; }
+
+        private GenerateLicenseKeyDto keyGenerationParameters = new GenerateLicenseKeyDto
+        {
+            count = 1,
+            enableOfflineVerification = true,
+            isLifetime = false,
+            licenseLength = 30
+        };
+
+        object[][] selectItems = new object[][]
+        {
+        new object[] {"30 days", 30},
+        new object[] {"60 days", 60},
+        new object[] {"90 days", 90},
+        new object[] {"6 months", 180},
+        new object[] {"1 year", 360}
+        };
+
+        private string isLoading = null;
+        private string showDropdown = null;
+        private bool displayError = false;
+        private bool displaySuccess = false;
+        private bool licenseLengthDrpShow = true;
+
+        private void ToggleDropdown()
+        {
+            if (showDropdown == null)
+            {
+                showDropdown = "is-active";
+            }
+            else
+            {
+                showDropdown = null;
+            }
+        }
+
+        private void SetLicenseLength(ChangeEventArgs e)
+        {
+            keyGenerationParameters.licenseLength = int.Parse(e.Value.ToString());
+        }
+
+        private void SetOfflineVerification(ChangeEventArgs e)
+        {
+            keyGenerationParameters.enableOfflineVerification = bool.Parse(e.Value.ToString());
+        }
+
+        private void SetLifetime(ChangeEventArgs e)
+        {
+            licenseLengthDrpShow = !licenseLengthDrpShow;
+            keyGenerationParameters.isLifetime = bool.Parse(e.Value.ToString());
+
+            StateHasChanged();
+        }
+
+        private async Task GenerateLicenseKeys()
+        {
+            displayError = false;
+            displaySuccess = false;
+            isLoading = "is-loading";
+
+            keyGenerationParameters.softwareId = Id;
+            bool isSuccess = await apiService.GenerateLicenseKey(UserAuthState.token, keyGenerationParameters);
+
+            if (isSuccess)
+            {
+                displaySuccess = true;
+            }
+            else
+            {
+                displayError = true;
+            }
+
+            isLoading = null;
+        }
+    }

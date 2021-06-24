@@ -1,0 +1,96 @@
+﻿@page "/login"
+@using BasicSealBlazor.Dtos
+
+<AuthorizeView>
+    <Authorized> @if (true) { NavigationManager.NavigateTo("/"); }</Authorized>
+    <NotAuthorized>
+        <section class="hero">
+            <div class="hero-body has-text-centered">
+
+                <div class="column column is-4 is-offset-4">
+
+                    <h3 class="title">User Login</h3>
+                    <hr class="login-hr">
+
+                    <div class="container">
+                        <div class="box has-text-left">
+                            <form>
+                                <div class="field">
+                                    <label class="label">Email:</label>
+                                    <p class="control has-icons-left has-icons-right">
+                                        <input class="input @(displayLoginError ? "is-danger" : "")" type="email"
+                                               @bind="userAuthDto.Email" @onkeyup="@Enter">
+                                        <span class="icon is-medium is-left">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Password:</label>
+                                    <p class="control has-icons-left">
+                                        <input class="input @(displayLoginError ? "is-danger" : "")" type="password"
+                                               @bind="userAuthDto.Password" @onkeyup="@Enter">
+                                        <span class="icon is-medium is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="inputError">
+                                    <p hidden="@(!displayLoginError)">
+                                        Wrong email or password
+                                    </p>
+                                </div>
+                                <div class="field">
+                                    <p class="control">
+                                        <a type="button" class="button is-link is-medium is-fullwidth @isLoading" @onclick="LoginUser">
+                                            Login
+                                        </a>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+    private bool displayLoginError = false;
+    private string isLoading = null;
+    private UserAuthDto userAuthDto = new UserAuthDto();
+
+    private async Task LoginUser()
+    {
+        isLoading = "is-loading";
+        displayLoginError = false;
+
+        if (!(string.IsNullOrEmpty(userAuthDto.Email) || string.IsNullOrEmpty(userAuthDto.Password)))
+        {
+            string token = await apiService.LoginUser(userAuthDto);
+
+            if (token != null)
+            {
+                await ServiceProvider.Get<BasicSealAuthProvider>()
+                    .LoginAsync(new User { userEmail = userAuthDto.Email, userToken = token }).ConfigureAwait(true);
+
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+        }
+
+        isLoading = null;
+        displayLoginError = true;
+    }
+
+    private async Task Enter(KeyboardEventArgs e)
+    {
+        if ((e.Code == "Enter" || e.Code == "NumpadEnter") && isLoading == null)
+        {
+            await LoginUser();
+        }
+    }
+}

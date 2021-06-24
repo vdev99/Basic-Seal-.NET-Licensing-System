@@ -1,0 +1,136 @@
+﻿@attribute [Authorize]
+@page "/manage/versions/{Id:int}"
+@using BasicSealBlazor.Dtos
+
+<h2 id="softwareId">Software ID: @generatedSoftwareId</h2> <!-- GENERATED FROM ID+APP NAME, MD5 HASH, FIRST 10 CHARACTERS OF THE HASH -->
+<div id="appVersionsDiv">
+    <div class="table-wrapper">
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>SoftwareName</th>
+                    <th>Version</th>
+                    <th>Hash</th>
+                    <th>&nbsp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (appVersions?.version != null)
+                {
+                    for (int i = 0; i < appVersions.version.Count; i++)
+                    {
+                        int locI = i;
+                        <tr>
+                            <td class="tabletdValues">@SoftwareName</td>
+                            <td class="tabletdValues">@appVersions.version[locI].Version</td>
+                            <td class="tabletdValues">@appVersions.version[locI].Hash</td>
+                            <td class="versionDelBtn">
+                                <button class="button is-danger is-small @appVersions.version[locI].isLoading"
+                                        @onclick="() => DeleteVersion(locI)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <div id="addVersionHolder">
+        <h1>Add New Software Version</h1>
+        <br />
+        <table class="table is-fullwidth is-bordered">
+            <tr>
+                <td class="tabletdValues">@SoftwareName</td>
+                <td class="inputBox">
+                    <input class="input is-info is-small @(displayError ? "is-danger" : "")" type="text" placeholder="Version" @bind-value="newSoftwareVersion.Version">
+                </td>
+                <td class="inputBox">
+                    <input class="input is-info is-small @(displayError ? "is-danger" : "")" type="text" placeholder="Hash" @bind-value="newSoftwareVersion.Hash">
+                </td>
+                <td class="versionDelBtn">
+                    <button class="button is-link is-small @isLoading" @onclick="AddNewSoftwareVersion">
+                        Add
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <div class="inputError">
+            <p hidden="@(!displayError)">
+                Software Version Already Exists!
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    public string SoftwareName { get; set; }
+
+    private string generatedSoftwareId { get; set; }
+
+    private SoftwareVersionsDto appVersions = null;
+
+    private AddSoftwareVersionDto newSoftwareVersion = new AddSoftwareVersionDto();
+
+    private string isLoading = null;
+
+    private bool displayError = false;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await LoadSoftwareVersions();
+
+        StateHasChanged();
+
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task LoadSoftwareVersions()
+    {
+        var versions = await apiService.GetSoftwareVersions(UserAuthState.token, Id);
+        generatedSoftwareId = versions.generatedSoftwareId;
+        appVersions = versions;
+        SoftwareName = versions.SoftwareName;
+    }
+
+    private async Task AddNewSoftwareVersion()
+    {
+        displayError = false;
+        isLoading = "is-loading";
+        newSoftwareVersion.SoftwareId = Id;
+
+        bool result = await apiService.AddSoftwareVersion(UserAuthState.token, newSoftwareVersion);
+
+        if (result)
+        {
+            await LoadSoftwareVersions();
+            newSoftwareVersion.Hash = "";
+            newSoftwareVersion.Version = "";
+        }
+        else
+        {
+            displayError = true;
+        }
+
+        isLoading = null;
+    }
+
+    private async Task DeleteVersion(int versionPosition)
+    {
+        appVersions.version[versionPosition].isLoading = "is-loading";
+
+        bool result = await apiService.DeleteSoftwareVersion(UserAuthState.token, appVersions.version[versionPosition].Id);
+
+        if (result)
+        {
+            appVersions.version.RemoveAt(versionPosition);
+        }
+        else
+        {
+            appVersions.version[versionPosition].isLoading = null;
+        }
+    }
+}

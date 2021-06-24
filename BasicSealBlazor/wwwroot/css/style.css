@@ -1,0 +1,347 @@
+﻿#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.is-sidebar-menu {
+    padding: 1.5rem;
+    background: #484848;
+}
+
+    .is-sidebar-menu li a {
+        color: white;
+    }
+
+.menu-label {
+    font-size: 1.0rem;
+}
+
+.columns.is-fullheight {
+    min-height: calc(100vh - ( 3.25rem - .75rem ) );
+    max-height: calc(100vh - ( 3.25rem - .75rem ) );
+    height: calc(100vh - ( 3.25rem - .75rem ) );
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+}
+
+    .columns.is-fullheight .column {
+        overflow-y: auto;
+    }
+
+#addApp{
+    margin-top: 15%;
+}
+
+#deleteApp{
+    margin-top: 3%;
+}
+
+#navbarend{
+    margin-right: 0.5%;
+}
+
+#myApps {
+    font-weight: normal;
+    margin-left: 5%;
+    margin-top: 15%;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.inputError {
+    color: red;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2%;
+}
+
+.inputSuccess {
+    color: limegreen;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2%;
+}
+
+#modcard {
+    width: 350px;
+}
+
+#modcardhead {
+    padding: 10px
+}
+
+#modcardtitle {
+    font-size: 1.2rem;
+}
+
+#modcardbody {
+    padding-bottom: 5px;
+    height: fit-content;
+    overflow: hidden;
+}
+
+#modcardbtngrp {
+    padding-top: 20px;
+}
+
+#modcardfoot {
+    padding: 5px
+}
+
+#tableAppName {
+    font-size: 1rem;
+    text-align: left;
+    vertical-align: middle;
+}
+
+#tableAppBtn {
+    font-size: 1.1rem;
+    text-align: right;
+    vertical-align: middle;
+}
+
+#modcarddel {
+    width: 500px;
+}
+
+#modcarddelbody {
+    height: 200px;
+    overflow: auto;
+}
+
+#appVersionsDiv {
+    padding-left: 12%;
+    padding-right: 12%;
+    padding-top: 2%;
+}
+
+#appVersionsDiv table thead tr th {
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+#appVersionsDiv table tbody tr td, table thead tr th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#appVersionsDiv td, th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-wrapper {
+    overflow-y: scroll;
+    max-height: 420px;
+}
+
+.table-wrapper th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    background: white;
+}
+
+td, th {
+    padding: 10px;
+    text-align: center;
+}
+
+#appVersionsDiv .versionDelBtn {
+    text-align: right;
+}
+
+#appVersionsDiv .versionDelBtn button{
+    width:90px;
+}
+
+#appVersionsDiv input{
+    width:200px;
+}
+
+#addVersionHolder {
+    padding-top:35px;
+    padding-right:17px;
+}
+
+#addVersionHolder .inputBox{
+    text-align:left;
+}
+#addVersionHolder table{
+    table-layout:fixed;
+}
+
+#addVersionHolder h1{
+    font-size:1.2rem;
+}
+
+#licenseKeyGen {
+    padding-left: 14%;
+    padding-right: 15%;
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+
+
+.table .cellInput {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table .cellTitle {
+    text-align: left;
+    vertical-align: middle;
+}
+
+#generateKeyBtn {
+    width: 400px;
+}
+
+#generateKeyHolder {
+    text-align: center;
+}
+
+#licenseKeyGen h1 {
+    font-size: 1.2rem;
+    padding-bottom: 20px;
+}
+
+#countTextbox {
+    width: 120px;
+    text-align: center;
+}
+
+
+
+#licenseManagerTableHolder {
+    padding-top: 5px;
+    width: 1250px;
+    height: 475px;
+}
+
+#licenseManagerTableHolder #licenseManagerTable tbody .nowraptd {
+    white-space: nowrap;
+    text-align: center;
+}
+
+#licenseManagerTableHolder #licenseManagerTable .classictd {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+#licenseManagerTableHolder #licenseManagerTable thead th{
+    text-align: center;
+}
+
+#licenseManagerTable {
+    height: auto;
+    width: 100%;
+    margin: auto;
+    border-collapse: collapse;
+}
+
+#pageIndex{
+    padding:8px;
+}
+
+#paginationNav {
+    width: 190px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#filterHolder{
+    padding-top: 3%;
+    padding-left: 3%;
+    width: 200px;
+}
+
+#filterTable {
+    height: auto;
+    width: 100%;
+    margin: auto;
+    border-collapse: collapse;
+}
+
+#filterTable td{
+    white-space:nowrap;
+}
+
+
+#filterStateTable h1{
+    font-size: 1.5rem;
+}
+
+#searchHolder li{
+    display: inline;
+}
+
+#searchHolder{
+    float:right;
+    padding-right: 10px;
+    padding-bottom: 3px;
+}
+
+#searchInput {
+    width: 200px;
+}
+
+#licCount{
+    float:left;
+    font-size: 1rem;
+    color: black;
+    padding-top: 3px;
+}
+
+#modcaredit {
+    width: 1250px;
+}
+
+#licenseEditTable {
+    height: auto;
+    width: 100%;
+    margin: auto;
+    border-collapse: collapse;
+}
+
+#licenseEditTable tbody td{
+    text-align:center;
+}
+
+#licenseEditTable thead th{
+    text-align:center;
+}
+
+#softwareId {
+    padding-top: 20px;
+    padding-left: 20px;
+    font-size: 1.1rem;
+    color: black;
+}

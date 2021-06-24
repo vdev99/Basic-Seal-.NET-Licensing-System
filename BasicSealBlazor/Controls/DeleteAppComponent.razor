@@ -1,0 +1,101 @@
+﻿@using BasicSealBlazor.Dtos
+
+@if (display)
+{
+    <div class="modal is-active">
+        <div class="modal-background"></div>
+        <div class="modal-card" id="modcarddel">
+            <header class="modal-card-head" id="modcardhead">
+                <p class="modal-card-title">Delete Applications</p>
+                <button class="delete" aria-label="close" disabled="@mainButtonsDisabled" @onclick="(() =>
+                                                                    {
+                                                                        HideDialog();
+                                                                    })"></button>
+            </header>
+            <section class="modal-card-body">
+                <section id="modcarddelbody">
+                    <table class="table is-fullwidth">
+                        @if (appsToDel != null || apps.Count == appsToDel.Count)
+                        {
+                            @for(int i=0; i < appsToDel.Count; i++)
+                            {
+                                int locI = i;
+                                <tr>
+                                    <td id="tableAppName">@appsToDel[locI].SoftwareName</td>
+                                    <td id="tableAppBtn">
+                                    <button class="button is-danger is-small @appsToDel[locI].isLoading" @onclick="() => DeleteApp(locI)"
+                                                                 disabled="@appsToDel[locI].isDisabled">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </section>
+               
+                <div class="buttons is-justify-content-center" id="modcardbtngrp">
+                    <button class="button is-info is-fullwidth" @onclick="HideDialog" disabled="@mainButtonsDisabled">OK</button>
+                </div>
+            </section>
+            <footer class="modal-card-foot" id="modcardfoot"></footer>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public Action<List<ApplicationsNavDto>> AppsChanged { get; set; }
+
+    [Parameter]
+    public List<ApplicationsNavDto> apps { get; set; }
+
+    private List<ApplicationsDel> appsToDel = null;
+
+    private bool mainButtonsDisabled = false;
+    private bool display = false;
+    public void DisplayDialog()
+    {
+        display = true;
+        appsToDel = new List<ApplicationsDel>();
+        foreach (var app in apps)
+        {
+            appsToDel.Add(new ApplicationsDel { Id = app.Id, SoftwareName = app.SoftwareName });
+        }
+
+        StateHasChanged();
+    }
+    public void HideDialog()
+    {
+        AppsChanged(apps);
+        display = false;
+        appsToDel = null;
+        StateHasChanged();
+    }
+
+    private async Task DeleteApp(int appPosition)
+    {
+        mainButtonsDisabled = true;
+        appsToDel[appPosition].isLoading = "is-loading";
+
+        bool result = await apiService.DeleteApplication(UserAuthState.token, appsToDel[appPosition].Id);
+
+        if (result)
+        {
+            appsToDel[appPosition].isDisabled = true;
+        }
+
+        var appToDelete = apps.FirstOrDefault(a => a.Id == appsToDel[appPosition].Id);
+        apps.Remove(appToDelete);
+
+        appsToDel[appPosition].isLoading = null;
+        mainButtonsDisabled = false;
+    }
+
+    private class ApplicationsDel
+    {
+        public long Id { get; set; }
+        public string SoftwareName { get; set; }
+        public bool isDisabled { get; set; } = false;
+        public string isLoading { get; set; }
+    }
+}

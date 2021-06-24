@@ -1,0 +1,39 @@
+﻿<nav class="navbar is-dark" role="navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <h3 class="title has-text-white">Basic Seal</h3>
+        </a>
+    </div>
+    <div class="navbar-end" id="navbarend">
+        <AuthorizeView>
+            <Authorized>
+                <div class="navbar-item">
+                    <h5>Logged in as:  @(UserAuthState.isLoggedIn ? UserAuthState.email : "")</h5>
+                </div>
+                <div class="navbar-item">
+                    <a type="button" class="button is-link" @onclick="LogoutUser"><strong>Logout</strong></a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="buttons">
+                    <a class="button is-link" href="/register">
+                        <strong>Sign up</strong>
+                    </a>
+                    <a class="button is-light has-text-black" href="/login">
+                        <strong> Log in </strong>
+                    </a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</nav>
+
+@code {        
+
+    private async Task LogoutUser()
+    {
+        await ServiceProvider.Get<BasicSealAuthProvider>().LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+
+}

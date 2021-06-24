@@ -1,0 +1,342 @@
+﻿@attribute [Authorize]
+@page "/manage/licenses/{Id:int}"
+@using BasicSealBlazor.Dtos
+
+
+<div id="licenseManagerDiv">
+    <div id="filterHolder">
+        <button class="button @filterButton[0]" @onclick="async () => await ToggleFilterButton()">@filterButton[2]</button>
+        @if ((bool)filterButton[1])
+        {
+            <table class="table" id="filterTable">
+                <thead>
+                    <tr>
+                        <th colspan="2">Length</th>
+                        <th>&nbsp;</th>
+                        <th colspan="2">State</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" @onchange="@((e) => SetFilterLicLength(30))">
+                                30 Days
+                            </label>
+                        </td>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" @onchange="@((e) => SetFilterLicLength(180))">
+                                6 months
+                            </label>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            Active:
+                            <div class="select is-small">
+                                <select @onchange="@((e) => SetFilterLicState(e, "active"))">
+                                    <option value="null">All</option>
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            Expired:
+                            <div class="select is-small">
+                                <select @onchange="@((e) => SetFilterLicState(e, "expired"))">
+                                    <option value="null">All</option>
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" @onchange="@((e) => SetFilterLicLength(60))">
+                                60 Days
+                            </label>
+                        </td>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" @onchange="@((e) => SetFilterLicLength(360))">
+                                1 Year
+                            </label>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            Banned:
+                            <div class="select is-small">
+                                <select @onchange="@((e) => SetFilterLicState(e, "banned"))">
+                                    <option value="null">All</option>
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" @onchange="@((e) => SetFilterLicLength(90))">
+                                90 Days
+                            </label>
+                        </td>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" @onchange="@((e) => SetFilterLicLength(0))">
+                                Lifetime
+                            </label>
+                        </td>
+                        <td></td>
+                        <td colspan="2">
+                            <button class="button is-small is-link is-fullwidth" @onclick="async () => await ExecuteFilter()">OK</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <div>
+        <ul id="searchHolder">
+            <li><input class="input is-small" type="text" placeholder="License Key" id="searchInput" @bind-value="searchLicenseTextbox"></li>
+            <li><button class="button is-small is-link" @onclick="async () => await SearchLicenseKey()">Search</button></li>
+        </ul>
+    </div>
+
+
+    <div id="licenseManagerTableHolder">
+        <table class="table is-narrow is-striped" id="licenseManagerTable">
+            <thead>
+                <tr>
+                    <th>License Key</th>
+                    <th>Length</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Activated</th>
+                    <th>Banned</th>
+                    <th><abbr title="Offline Verification">Offl. Verif.</abbr></th>
+                    <th>CPU ID</th>
+                    <th>HDD ID</th>
+                    <th>System ID</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (licenses != null)
+                {
+                    @for (int i = 0; i < licenses.softwareLicenseDtos.Count; i++)
+                    {
+                        int locI = i;
+                <tr>
+                    <td class="nowraptd">@licenses.softwareLicenseDtos[locI].LicenseKey</td>
+
+                    <td class="nowraptd">
+                        @if (licenses.softwareLicenseDtos[locI].LicenseLength == 0)
+                        {
+
+                            <p>Lifetime</p>
+                        }
+                        else if (licenses.softwareLicenseDtos[locI].LicenseLength <= 90)
+                        {
+
+                            <p>@(licenses.softwareLicenseDtos[locI].LicenseLength.ToString()) Days</p>
+                        }
+                        else if (licenses.softwareLicenseDtos[locI].LicenseLength <= 180)
+                        {
+
+                            <p>@((licenses.softwareLicenseDtos[locI].LicenseLength / 30).ToString()) Months</p>
+                        }
+                        else
+                        {
+                            <p>@((licenses.softwareLicenseDtos[locI].LicenseLength / 360).ToString()) Year</p>
+                        }
+                    </td>
+                    <td class="nowraptd">
+                        @(licenses.softwareLicenseDtos[locI].LicenseStartDate == DateTime.MinValue ? "" : licenses.softwareLicenseDtos[locI].LicenseStartDate.ToString("dd/MM/yyyy"))
+                    </td>
+                    <td class="nowraptd">
+                        @(licenses.softwareLicenseDtos[locI].LicenseEndDate == DateTime.MinValue ? "" : licenses.softwareLicenseDtos[locI].LicenseEndDate.ToString("dd/MM/yyyy"))
+                    </td>
+                    <td class="classictd">@licenses.softwareLicenseDtos[locI].IsActivated</td>
+                    <td class="classictd">@licenses.softwareLicenseDtos[locI].IsBanned</td>
+                    <td class="classictd">@licenses.softwareLicenseDtos[locI].enableOfflineVerification</td>
+                    <td class="classictd">
+                        <abbr title="@licenses.softwareLicenseDtos[locI].CpuIdentifier">@licenses.softwareLicenseDtos[locI].CpuIdentifier</abbr>
+                    </td>
+                    <td class="classictd">
+                        <abbr title="@licenses.softwareLicenseDtos[locI].HddIdentifier">@licenses.softwareLicenseDtos[locI].HddIdentifier</abbr>
+                    </td>
+                    <td class="classictd">
+                        <abbr title="@licenses.softwareLicenseDtos[locI].SystemUUID">@licenses.softwareLicenseDtos[locI].SystemUUID</abbr>
+                    </td>
+                    <td> <button class="button is-link is-small" @onclick="() => editLicenseComponent.DisplayDialog(licenses.softwareLicenseDtos[locI])">Edit</button></td>
+                    <td>
+                        <button class="button is-danger is-small @licenses.softwareLicenseDtos[locI].isLoading"
+                                @onclick="async () => await DeleteLicense(locI)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (licenses != null)
+    {
+        <h3 id="licCount">Total Licenses: @licenses.totalRecords</h3>
+        <PagerComponent pageIndex=@licenses.pageNumber totalPages=@licenses.totalPages OnClick="PageIndexChanged"
+                        hasNextPage=@licenses.HasNextPage hasPreviousPage=@licenses.hasPreviousPage>
+        </PagerComponent>
+    }
+    <EditLicenseComponent @ref="editLicenseComponent" LicenseChanged="LicChanged"></EditLicenseComponent>
+</div>
+
+@code{
+    [Parameter]
+    public int Id { get; set; }
+
+    private EditLicenseComponent editLicenseComponent { get; set; }
+    private SoftwareLicenseDto currentEdit = new SoftwareLicenseDto();
+    private LicenseRespDto licenses;
+    private GetLicenseReqDto GetLicenseReq = new GetLicenseReqDto();
+    private object[] filterButton = new object[] { "", false, "Enable Filter" };
+    private string searchLicenseTextbox;
+
+
+    protected async override Task OnParametersSetAsync()
+    {
+
+        await LoadLicenses();
+
+        StateHasChanged();
+
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task LoadLicenses(GetLicenseReqDto getLicenseReq = null)
+    {
+        getLicenseReq = getLicenseReq == null ? new GetLicenseReqDto() { softwareId = Id } : getLicenseReq;
+
+        getLicenseReq.softwareId = Id;
+
+        licenses = await apiService.GetLicenses(UserAuthState.token, getLicenseReq);
+    }
+
+    public async void PageIndexChanged(int newPageNumber)
+    {
+        if (newPageNumber < 1 || newPageNumber > licenses.totalPages)
+        {
+            return;
+        }
+
+        GetLicenseReq.softwareId = Id;
+        GetLicenseReq.pageNumber = newPageNumber;
+        licenses = await apiService.GetLicenses(UserAuthState.token, GetLicenseReq);
+        StateHasChanged();
+    }
+
+    private async Task ToggleFilterButton()
+    {
+        if ((bool)filterButton[1])
+        {
+            filterButton[0] = "";
+            filterButton[1] = false;
+            filterButton[2] = "Enable Filter";
+
+            GetLicenseReq.filters = new LicenseFiltersDto();
+            await LoadLicenses();
+        }
+        else
+        {
+            filterButton[0] = "is-danger";
+            filterButton[1] = true;
+            filterButton[2] = "Disable Filter";
+        }
+
+        StateHasChanged();
+    }
+
+    private void SetFilterLicLength(int length)
+    {
+        if(GetLicenseReq.filters.length.Contains(length))
+        {
+            GetLicenseReq.filters.length.Remove(length);
+        }
+        else
+        {
+            GetLicenseReq.filters.length.Add(length);
+            if (length == 0) { GetLicenseReq.filters.lifetime = true; }
+        }
+    }
+
+    private void SetFilterLicState(ChangeEventArgs e, string property)
+    {
+        var prop = GetLicenseReq.filters.GetType().GetProperty(property);
+
+        bool? newValue = e.Value.ToString() == "null" ? null : bool.Parse(e.Value.ToString());
+
+        prop.SetValue(GetLicenseReq.filters, newValue);
+    }
+
+    private async Task ExecuteFilter()
+    {
+        await LoadLicenses(GetLicenseReq);
+    }
+
+    private async Task SearchLicenseKey()
+    {
+        if (string.IsNullOrEmpty(searchLicenseTextbox))
+        {
+            await ExecuteFilter();
+        }
+        else
+        {
+            SoftwareLicenseDto license = await apiService.GetLicenseByKey(UserAuthState.token, Id, searchLicenseTextbox);
+
+            licenses = new LicenseRespDto() {
+                softwareId = Id,
+                pageSize = 1,
+                pageNumber = 1,
+                totalRecords = 1
+            };
+
+            if(license != null)
+            {
+                licenses.softwareLicenseDtos.Add(license);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteLicense(int position)
+    {
+        licenses.softwareLicenseDtos[position].isLoading = true;
+
+        bool result = await apiService.DeleteSoftwareLicense(UserAuthState.token, Id, licenses.softwareLicenseDtos[position].Id);
+
+        if (result)
+        {
+            licenses.softwareLicenseDtos.RemoveAt(position);
+        }
+
+        licenses.softwareLicenseDtos[position].isLoading = false;
+    }
+
+    private void LicChanged(SoftwareLicenseDto license)
+    {
+        int licIndex = licenses.softwareLicenseDtos.FindIndex(l => l.Id == license.Id);
+
+        licenses.softwareLicenseDtos[licIndex] = license;
+
+        StateHasChanged();
+    }
+}
+
+

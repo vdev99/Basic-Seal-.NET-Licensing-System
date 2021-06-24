@@ -1,0 +1,17 @@
+﻿@inherits LayoutComponentBase
+
+<div>
+    <NavBar></NavBar>
+
+    <div class="columns is-fullheight">
+        <AuthorizeView>
+            <Authorized>
+                <NavMenu />
+            </Authorized>
+        </AuthorizeView>
+ 
+        <div class="column is-main-content">
+            @Body
+        </div>
+    </div>
+</div>

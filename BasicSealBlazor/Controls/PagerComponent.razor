@@ -1,0 +1,50 @@
+﻿@if (totalPages > 0)
+{
+    <nav class="pagination is-small" role="navigation" aria-label="pagination" id="paginationNav">
+        <ul class="pagination-list">
+            <li>
+                <a class="button is-small" disabled="@((pageIndex == 1) ? "disabled" : null)" @onclick="@(() => OnClick.InvokeAsync(1))">
+                    <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+                </a>
+            </li>
+           
+            <li>
+                <a class="button is-small" disabled="@(hasPreviousPage ? null : "disabled")" @onclick="@(() => OnClick.InvokeAsync(pageIndex - 1))">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                </a>
+            </li>
+
+            <li id="pageIndex"><a class="button is-link is-current is-small">@pageIndex</a></li>
+
+            <li>
+                <a class="button is-small" disabled="@(hasNextPage ? null : "disabled")" @onclick="@(() => OnClick.InvokeAsync(pageIndex + 1))">
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+
+            <li>
+                <a class="button is-small" disabled="@((pageIndex == totalPages) ? "disabled" : null)" @onclick="@(() => OnClick.InvokeAsync(totalPages))">
+                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@code {
+
+    [Parameter]
+    public int pageIndex { get; set; }
+
+    [Parameter]
+    public int totalPages { get; set; }
+
+    [Parameter]
+    public bool hasPreviousPage { get; set; }
+
+    [Parameter]
+    public bool hasNextPage { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnClick { get; set; }
+}

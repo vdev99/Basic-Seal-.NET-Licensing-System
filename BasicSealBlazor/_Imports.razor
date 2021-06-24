@@ -1,0 +1,17 @@
+﻿@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using BasicSealBlazor
+@using BasicSealBlazor.Shared
+
+@using BasicSealBlazor.Helpers
+@using BasicSealBlazor.Controls
+
+@inject IServiceProvider ServiceProvider
+@inject NavigationManager NavigationManager
+@inject Services.Interfaces.IAPIService apiService
+@inject BasicSealBlazor.Services.UserAuthStateService UserAuthState
