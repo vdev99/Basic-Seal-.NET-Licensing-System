@@ -1,4 +1,4 @@
-# Basic-Seal-.NET-Licensing-System
+# Basic Seal .NET Licensing System
 
 Basic Seal is a simple easy to use licensing system for .NET Core 3.1 applications with Windows and Linux support. 
 
