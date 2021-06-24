@@ -102,3 +102,5 @@ Try it out!, generate a license key on the website, and enter it to the applicat
 
 ![image](https://user-images.githubusercontent.com/86075693/123267410-44bd4080-d4fd-11eb-8fa3-05f438b53277.png)
 
+\
+The client side license key verification uses code from https://github.com/appsoftwareltd/dotnet-licence-key-generator
