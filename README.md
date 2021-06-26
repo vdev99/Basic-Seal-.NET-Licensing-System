@@ -33,9 +33,7 @@ Open MySql command line interface, log in and enter the following commands to cr
 CREATE USER 'basicseal'@'localhost' IDENTIFIED BY 'akademiasovy';\
 ALTER USER 'basicseal'@'localhost' IDENTIFIED WITH mysql_native_password BY 'akademiasovy';\
 GRANT ALL PRIVILEGES ON * . * TO 'basicseal'@'localhost';\
-FLUSH PRIVILEGES;\
-CREATE DATABASE basicseal_database;\
-USE basicseal_database;
+FLUSH PRIVILEGES;
 
 Feel free to change to username and password, but do not forget to also change it in the **BasicSealBackend\appsettings.json** file in the database connection string.
 
