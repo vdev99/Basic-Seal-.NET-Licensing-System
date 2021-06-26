@@ -2,6 +2,8 @@
 
 Basic Seal is a simple easy to use licensing system for .NET Core 3.1 applications with Windows and Linux support. 
 
+**Note: The project is not production ready, especially the frontend part**
+
 ## Short description
 
 The licensing system consists of 3 parts, a website, a REST server and a client library. 
